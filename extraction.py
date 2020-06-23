@@ -21,32 +21,23 @@ html = urllib.request.Request(url, headers = hdr)                     # Header i
 html_read = urllib.request.urlopen(html, context = ctx).read()        # reads all HTML data, but in a single line
 soup = BeautifulSoup(html_read, 'html.parser')                        # Structures the HTML data, human readable
 
-print(len(list(soup.children)))                                       # List of direct childrens
-print(len(list(soup.descendants)))                                    # List of all descendants
 
-txts = (soup.get_text())                                              # Extracts all text elements into a string
-#print((txts)
-
-soup_str = soup.prettify()                                            # Prettify the HTML, but it becomes String
-#print(soup_str)
+# soup_str = soup.prettify()                                            # Prettify the HTML, but it becomes String
+# print(soup_str)
 
                                                    
-tags = soup.find_all("div", {"class": "tile-img"})                    # Extracts tags with tag div Class = tile-img       
-
-
-#print(soup.find_all(string='Atlanta'))                               # Seraches for string, instead of tags
-#soup.find(id="link3")                                                # Finds if any element is there with id = Link3
-
-#To iterate over parents of a single tag : #############
-
-
+tags = soup.find_all("div", class_ = "item-ttl C C2")                    # Extracts tags with tag div Class = tile-img       
 count = 0
 for tag in tags:
-    print(tag)
+    #print (tag.prettify())
     count +=1
-    link = tag.get('href', None)                                      # Extracts href property objects of each tags
-    link1 = tag.get('href') 
- #   print(link)   
+    
+    link = tag.a.get('href')                                    # Extracts href property objects of each tags
+    title = tag.a.get('title')
+    img_link = tag.a.div.img.get('source')
+    print(link)
+    print(title)
+    print(img_link)
 print (count)
 # ##########Using Regex inside find_all ###############
 # for tag in soup.find_all(re.compile("^b")):
