@@ -2,6 +2,9 @@ import urllib.request, urllib.parse, urllib.error
 from bs4 import BeautifulSoup
 import ssl
 import re
+import csv
+
+from per_file import unit_file
 
 # Ignore SSL certificate errors
 ctx = ssl.create_default_context()
@@ -21,26 +24,48 @@ html = urllib.request.Request(url, headers = hdr)                     # Header i
 html_read = urllib.request.urlopen(html, context = ctx).read()        # reads all HTML data, but in a single line
 soup = BeautifulSoup(html_read, 'html.parser')                        # Structures the HTML data, human readable
 
+with open('cms_scrape.csv', 'w', newline='') as csv_file:
+    fieldname = ['title','link','.pdf', 'pdf size', '.xml', 'xml size', '.djvu','djvu size', '.zip','zip size', 
+    '.gz', 'gz size', '.torrent', 'torrent size', '.jpg', 'jpg size']
+    csv_writer = csv.DictWriter(csv_file, fieldnames = fieldname)
 
-# soup_str = soup.prettify()                                            # Prettify the HTML, but it becomes String
-# print(soup_str)
+    csv_writer.writeheader()
 
-                                                   
-tags = soup.find_all("div", class_ = "item-ttl C C2")                    # Extracts tags with tag div Class = tile-img       
-count = 0
-for tag in tags:
-    #print (tag.prettify())
-    count +=1
-    
-    link = tag.a.get('href')                                    # Extracts href property objects of each tags
-    title = tag.a.get('title')
-    img_link = tag.a.div.img.get('source')
-    print(link)
-    print(title)
-    print(img_link)
-print (count)
-# ##########Using Regex inside find_all ###############
-# for tag in soup.find_all(re.compile("^b")):
-#     print(tag.name)
-# # body
-# # b
+    # soup_str = soup.prettify()                                            # Prettify the HTML, but it becomes String
+    # print(soup_str)
+
+                                                    
+    tags = soup.find_all("div", class_ = "item-ttl C C2")                    # Extracts tags with tag div Class = tile-img       
+    count = 0
+    list_dict = []
+    for tag in tags:
+        #print (tag.prettify())
+        count +=1
+        
+        link = 'https://archive.org' + tag.a.get('href')                                
+        title = tag.a.get('title')
+        img_link = tag.a.div.img.get('source')
+        # print(link)
+        # print(title)
+        # print(img_link)
+
+        file_url = link.replace("/details/","/download/")
+        #print(file_url)
+        unit_dict = unit_file(file_url)
+        
+        csv_writer.writerow({'link': link, 'title' : title, '.pdf' : file_url + "/"+ unit_dict['.pdf'][0], 'pdf size' : unit_dict['.pdf'][1],
+         '.xml' : file_url +"/"+ unit_dict['.xml'][0], 'xml size' :  unit_dict['.xml'][1],
+        '.djvu' : file_url +"/"+ unit_dict['.djvu'][0], 'djvu size' :  unit_dict['.djvu'][1],
+         '.zip' : file_url +"/"+ unit_dict['.zip'][0], 'zip size' :  unit_dict['.zip'][1],
+          '.gz' : file_url +"/"+ unit_dict['.gz'][0], 'gz size' : unit_dict['.gz'][1],
+           '.torrent' : file_url +"/"+ unit_dict['.torrent'][0], 'torrent size' :  unit_dict['.torrent'][1],
+         '.jpg' : file_url +"/"+ unit_dict['.jpg'][0], 'jpg size' :  unit_dict['.jpg'][1]})
+        
+        list_dict += [unit_dict]
+        print (count,end="\n")
+        print(" ")
+        if count == 10:
+            break
+
+
+
