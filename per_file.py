@@ -17,7 +17,7 @@ hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML,
 
 def unit_file(url):
     if url == "":
-        url = 'https://archive.org/download/Maximum_PC_January_2004'
+        url = 'https://archive.org/download/Maximum_PC_April_2005'
     html = urllib.request.Request(url, headers = hdr)                     # Header is added so that this program behaves like a Browser
     html_read = urllib.request.urlopen(html, context = ctx).read()        # reads all HTML data, but in a single line
     soup = BeautifulSoup(html_read, 'html.parser')
@@ -36,13 +36,29 @@ def unit_file(url):
             continue
         else:
             file_name = tag.td.a.get('href')
-            file_format = re.findall("[/.].+",file_name)[0]
-            size = tag.find_all("td")[2::3][0].text
+            if (re.findall('_text[/.].+',file_name)):
+                continue
+            else:
+                file_format = re.findall("[/.].+",file_name)[0]
+                size = tag.find_all("td")[2::3][0].text
 
-            if size != "":
-                dict[file_format] = [file_name,size]
+                if size != "":
+                    dict[file_format] = [file_name,size]
+    
+    try:
+        a = (dict['.djvu'])
+    except:
+        dict['.djvu'] = ["",""]
+
+    try:
+        a = (dict['.gz'])
+    except:
+        dict['.gz'] = ["",""]
+    
+    del a
+
     return dict
 
 
-local_output = unit_file("")
-print(local_output)
+# local_output = unit_file("")
+# print(local_output)
